@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>fractalfantasie met bogen</title>
+ <meta name="description" content="fractalfantasie met bogen">
+ <script src="../lib/aframe-v1.6.0.min.js"></script>
+</head>
+<body>
+
+
+  <script>
+    AFRAME.registerComponent('backgroundreflectinbol', {
+      schema: {
+        src: {type: 'asset', default: '../assets/fractalfantasie_bogen2.jpg'},
+        radius: {type: 'number', default: 10},
+        detail: {type: 'number', default: 5}
+      },
+
+      init: function () {
+        const data = this.data;
+        const el = this.el;
+        const textureLoader = new THREE.TextureLoader();
+        const textureEquirec = textureLoader.load(this.data.src,);
+        textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
+        textureEquirec.colorSpace = THREE.SRGBColorSpace;
+        const scene = this.el.sceneEl.object3D;
+        scene.background = textureEquirec;
+
+        const geometry = new THREE.IcosahedronGeometry(data.radius, data.detail);
+        const material = new THREE.MeshBasicMaterial({envMap: textureEquirec, side: THREE.DoubleSide});
+        const mesh  = new THREE.Mesh(geometry, material);
+        el.setObject3D('mesh', mesh);}
+    });
+  </script>
+
+   <a-scene>
+    <a-entity backgroundreflectinbol="radius: 10; detail: 60;"
+        animation="property: rotation; from: 0 0 0; to: 360 0 360; loop: true; easing: linear; dur: 30000">
+
+
+ <a-entity id="rig"
+     movement-controls position="0 -1.6 12">
+   <a-entity
+                  camera position="0 1.6 6"
+      look-controls wasd-controls="acceleration:200">
+   </a-entity>
+ </a-entity>
+
+ </a-scene>
+</body>
+</html>
