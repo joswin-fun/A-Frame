@@ -1,0 +1,113 @@
+ 
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <title>shaders met ChamferBox</title>
+   <meta name="description" content="shaders met ChamferBox">
+   <script src="../lib/aframe-v1.6.0.min.js"></script>
+<body>
+  <script> 
+    AFRAME.registerShader('chamferbox', { 
+      schema: { 
+        opacity: { is: 'uniform', default: 0.5 }, 
+        chamfer: { is: 'uniform', default: 0.564 }, 
+        mixh: { is: 'uniform', default: 0.5 }, 
+        mixv: { is: 'uniform', default: 0.5 }, 
+        mixc1:{ is: 'uniform', default: 0.5 }, 
+        mixc2:{ is: 'uniform', default: 0.5 }, 
+        snelh: { is: 'uniform', default: 0.001}, 
+       time: {type: 'time', is: 'uniform'} 
+     }, 
+ 
+fragmentShader:` 
+varying vec3 vUv; 
+uniform float mixh; uniform float mixv; 
+uniform float mixc1; uniform float mixc2; 
+uniform float chamfer; 
+uniform float opacity; 
+uniform float time; 
+uniform float snelh; 
+ 
+vec3 palette(float t) { 
+vec3 a = vec3(0.500,0.333,0.469); 
+vec3 b = vec3(0.447,0.500,0.385); 
+vec3 c = vec3(0.705,0.545,1.000); 
+vec3 d = vec3(0.062,0.557,0.137); 
+return a + b*tan(7.520*(c*t+d)); 
+} 
+ 
+// de sd functie voor een chamferbox 
+float sdChamferBox(vec2 p, vec2 b, float chamfer) 
+{ 
+p = abs(p) - b; 
+p = (p.y>p.x) ? p.yx : p.xy; 
+p.y += chamfer; 
+const float k = 1.0-sqrt(2.0); 
+if( p.y<0.0 && p.y+p.x*k<0.0 ) 
+   return p.x; 
+if( p.x<p.y ) 
+   return (p.x+p.y)*sqrt(0.5); 
+return length(p); 
+} 
+ 
+void main() { 
+float time = time * snelh; 
+gl_FragColor.a = opacity; 
+vec2 box = vec2(0.90,0.90); 
+float chamfer = chamfer; 
+float dxz = sdChamferBox( vUv.xz, box, chamfer ); 
+float dxy = sdChamferBox( vUv.xy, box, chamfer ); 
+ 
+vec3 col1 = dxz < 0.0 ? vec3(0.326,0.561,0.900) : vec3(0.510,1.000,0.430); 
+col1 = col1 * 2.00 * -tan(10.0 * abs(dxz) -2.2 * time); 
+ 
+vec3 col2 = dxy < 0.0 ? vec3(0.326,0.561,0.900) : vec3(0.510,1.000,0.430); 
+col2 = col2 * 2.00 * -tan(10.0 * abs(dxy) -2.2 * time); 
+ 
+vec3 col = mix(col1, col2, 0.5); 
+vec3 colV  = palette(length(vUv.xz) +time*-0.07); 
+vec3 colH  = palette(length(vUv.yz) +time* 0.07); 
+vec3 colC1 = palette(length(vUv.xyz)+time*-0.07); 
+vec3 colC2 = palette(length(vUv.xyz)+time* 0.07); 
+col = mix(col,colH, mixh); 
+col = mix(col,colV, mixv); 
+col = mix(col, colC1, mixc1); 
+col = mix(col, colC2, mixc2); 
+gl_FragColor = vec4(col,opacity); 
+}`, 
+ 
+vertexShader:` 
+varying vec3 vUv; 
+void main() { 
+vUv = position; 
+vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.); 
+gl_Position = projectionMatrix * modelViewPosition;}` 
+}); 
+  </script> 
+ 
+   <a-scene> 
+     <a-assets> 
+      <img id ="wolken" src="../assets/wolken_equirect.jpg"> 
+   </a-assets> 
+ <a-sky src="#wolken"></a-sky> 
+ 
+  <a-entity id="rig" 
+      movement-controls position="0 -1.6 0.2"> 
+       <a-entity 
+                 camera position="0 1.6 0.2" 
+        look-controls wasd-controls="acceleration: 5"> 
+      </a-entity> 
+</a-entity> 
+ 
+   <a-entity 
+   geometry="primitive: box; depth:3.5; height: 3.5; width: 3.5;" 
+       position="0 0 -0.5" 
+       material="shader: chamferbox; opacity: 0.9; side: double; chamfer: 0.564;" 
+       animation="property: rotation; from: 90 0 0; to: 90 360 0; easing: easeInOutSine; dir: alternate; loop: true; dur: 20000"> 
+    </a-entity> 
+ </a-scene> 
+ </body>
+</html>
+
+
