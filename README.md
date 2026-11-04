@@ -5,4 +5,5 @@ A Frame is een Webgl Framework om VR (virtual reality) animaties te bouwen. A fr
 |--|-------------------------------------------|---------------------------------------------------------------------|   
 |1 |Cirkels op 6 vlakken in polair assenstelsel|https://www.flevopink.nl/A-Frame_shaders/cirkels_polar_system/polar3/|
 |2 |Fractalfantasie met bogen en spiegelbal    |https://www.flevopink.nl/A-Frame/VR_fractalfantasie_met_bogen/indexb.html|
-|3 |Shader op box met chamferbox               |https://www.flevopink.nl/A-Frame_shaders/shader_met_SDF_Chamferbox/
+|3 |Shader op box met chamferbox               |https://www.flevopink.nl/A-Frame_shaders/shader_met_SDF_Chamferbox/|
+|4 |Shader met kleuren palette op 4 roterende vlakken|https://www.flevopink.nl/A-Frame_shaders/kleurenpalet_plane%5b1,-1%5d/)|
