@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>cirkels in een polar systeem</title>
+<meta name="description" content="cirkels in een polar systeem">
+<script src="../lib/aframe-v1.6.0.min.js"></script>
+</head>
+<body>
+
+<script>
+  AFRAME.registerShader('polarCirkel', {
+    schema: {
+      opacity: { is: 'uniform', default: 1.0 },
+      sdfRadius: { is: 'uniform', default: 0.5},
+      aantalGrids: { is: 'uniform', default: 4.0 },
+      zeroPos: { is: 'uniform', default: 0.5},
+      colab: { is: 'uniform', default: 0.0},
+      snelh: { is: 'uniform', default: 0.0008},
+      time:   {type: 'time', is: 'uniform'}
+    },
+
+fragmentShader:`
+   varying vec3 vUv;
+   uniform float opacity;
+   uniform float sdfRadius;
+   uniform float aantalGrids;
+   uniform float zeroPos;
+   uniform float colab;
+   uniform float time;
+   uniform float snelh;
+   float pi = 3.14159265359;
+
+// de sdf functie voor een cirkel
+   float sdCircle(vec2 p, float r) {return length(p) -r;}
+
+//vUv_inGrid functie plaatst de pixelcoordinaten vUv in een grid
+   vec2 vUv_inGrid(vec2 vUv, float gridSize){
+   vec2 vUv_grid = fract (vUv * gridSize);
+   return vUv_grid;
+}
+//vUv_toPolar functie plaatst de pixelcoordinaten vUv in een polar assenstelsel
+  vec3 vUv_toPolar(vec3 vUv, float time) {
+  float d = length(vUv);
+  float angle = atan(vUv.x, vUv.y);
+  vec3 vUv_polar = vec3(0.25 / d-time * 0.25, angle / pi, 1.);
+  return vUv_polar;
+}
+   void main() {
+   float time = time * snelh;
+   vec3 vUv_polar = vUv_toPolar(vUv, -time);
+   vec2 vUv_polarGrid = vUv_inGrid(vUv_polar.xy,aantalGrids);
+
+   float d = sdCircle(vUv_polarGrid.xy-zeroPos,sdfRadius);
+   vec3 col = d <= colab ? vec3(0.9,0.2,0.3): vec3(1.0, 1.0, 0.0);
+
+  // col = col * (1.20 -exp(-2.0 * abs(d*2.5)));
+   col = col * 0.8 + col * 4.0 * sin(20.0 * abs(d) -2.0 * time);
+   gl_FragColor = vec4(col, opacity);
+}`,
+
+vertexShader:`
+   varying vec3 vUv;
+   void main() {
+   vUv = position;
+   vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.);
+   gl_Position = projectionMatrix * modelViewPosition;}`
+});
+  </script>
+
+ <a-scene>
+   <a-assets>
+  <img id ="wolken" src="../assets/wolken_equirect.jpg">
+ </a-assets>
+<a-sky src="#wolken"></a-sky>
+ <a-entity id="rig"
+    movement-controls position="0 -1.6 0.4">
+     <a-entity
+               camera position="0 1.6 0.4"
+   look-controls wasd-controls="acceleration: 5">
+    </a-entity>
+</a-entity>
+
+<a-entity animation="property: rotation; from: 0 0 0; to: 0 360 0; easing: linear;
+                    loop: true; dur: 50000;">
+<a-entity
+    geometry="primitive: plane; height: 2.0; width: 2.0"
+    position="-1.0 0 0.0"
+    rotation="0 90 0"
+    material="shader: polarCirkel; side: double">
+ </a-entity>
+
+<a-entity
+   geometry="primitive: plane; height: 2.0; width: 2.0"
+   position="1.0 0 0.0"
+   rotation="0 90 0"
+   material="shader: polarCirkel; side: double">
+</a-entity>
+
+<a-entity
+   geometry="primitive: plane; height: 2.0; width: 2.0"
+   position="0.0 0.0 -1.0"
+   material="shader: polarCirkel; side: double">
+</a-entity>
+
+<a-entity
+   geometry="primitive: plane; height: 2.0; width: 2.0"
+   position="0.0 0 1.0"
+   material="shader: polarCirkel; side: double">
+</a-entity>
+
+<a-entity
+   geometry="primitive: plane; height: 2.0; width: 2.0"
+   position="0.0 1.0 0.0"
+   rotation="90 0 0"
+   material="shader: polarCirkel; side: double">
+</a-entity>
+
+<a-entity
+   geometry="primitive: plane; height: 2.0; width: 2.0"
+   position="0.0 -1.0 0.0"
+   rotation="90 0 0"
+   material="shader: polarCirkel; side: double">
+ </a-entity>
+</a-entity>
+</a-scene>
+
+</body>
+</html>
