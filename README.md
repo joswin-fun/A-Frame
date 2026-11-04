@@ -1,5 +1,5 @@
 # A-Frame
-A Frame is een Webgl Framework om VR (virtual reality) animaties te bouwen. A frame is gebasseerd op Three.js.
+A Frame is een Webgl Framework om VR (virtual reality) animaties te bouwen. A frame is gebasseerd op Three.js.Met de pijltjes toetsen en muiswiel kan je door de 3d ruimte scrollen.
 
 |  |               A Frame schetsen            |           link naar de animaties op mijn website                    |
 |--|-------------------------------------------|---------------------------------------------------------------------|   
